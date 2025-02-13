@@ -3,7 +3,7 @@ name = "textforge"
 version = "0.0.1"
 description = "test"
 authors = ["ameen-91 <mohammedameen9011@gmail.com>"]
-readme = "README.md"
+readme = "../README.md"
 
 [tool.poetry.dependencies]
 python = "^3.12"
