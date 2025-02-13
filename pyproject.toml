@@ -1,12 +1,13 @@
 [tool.poetry]
 name = "textforge"
-version = "0.0.1"
+version = "0.0.2"
 description = ""
 authors = ["ameen-91 <mohammedameen9011@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.12"
+requests = "^2.32.3"
 
 
 [build-system]
