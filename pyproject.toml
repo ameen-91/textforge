@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "textforge"
 version = "0.0.1"
-description = ""
+description = "test"
 authors = ["ameen-91 <mohammedameen9011@gmail.com>"]
 readme = "README.md"
 
