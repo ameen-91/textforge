@@ -16,8 +16,13 @@ class SyntheticDataGeneration(PipelineStep):
         query: str = "",
         model: str = "gpt-4o-mini",
         rate_limit_interval: float = 0.2,
+        base_url=None,
     ):
-        self.client = AsyncClient(api_key=api_key)
+        self.base_url = base_url
+        if base_url:
+            self.client = AsyncClient(api_key=api_key, base_url=base_url)
+        else:
+            self.client = AsyncClient(api_key=api_key)
         self.model = model
         self.labels = labels
         self.query = query

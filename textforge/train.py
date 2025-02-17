@@ -19,7 +19,7 @@ class TrainingStep(PipelineStep):
 
     def __init__(
         self,
-        model="distilbert/distilbert-base-uncased",
+        model_name="distilbert/distilbert-base-uncased",
         batch_size=8,
         epochs=3,
         lr=5e-5,
@@ -27,8 +27,9 @@ class TrainingStep(PipelineStep):
         save_steps=500,
         eval_steps=500,
         device="cuda" if torch.cuda.is_available() else "cpu",
+        model_path=None,
     ):
-        self.model = model
+        self.model_name = model_name
         self.batch_size = batch_size
         self.epochs = epochs
         self.learning_rate = lr
@@ -36,10 +37,11 @@ class TrainingStep(PipelineStep):
         self.eval_steps = eval_steps
         self.device = device
         self.max_length = max_length
+        self.model_path = model_path
 
     def print_config_options(self):
         options = {
-            "model": self.model,
+            "model": self.model_name,
             "batch_size": self.batch_size,
             "epochs": self.epochs,
             "lr": self.learning_rate,
@@ -84,7 +86,7 @@ class TrainingStep(PipelineStep):
 
         data = load_data(data)
 
-        tokenizer = AutoTokenizer.from_pretrained(self.model, use_fast=True)
+        tokenizer = AutoTokenizer.from_pretrained(self.model_name, use_fast=True)
 
         def tokenize(examples):
             return tokenizer(
@@ -99,10 +101,15 @@ class TrainingStep(PipelineStep):
 
         data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
         tokenized_data = tokenized_data.train_test_split(test_size=0.3)
-
-        model = AutoModelForSequenceClassification.from_pretrained(
-            self.model, num_labels=num_labels, id2label=id2label, label2id=label2id
-        )
+        if self.model_path:
+            model = AutoModelForSequenceClassification.from_pretrained(self.model_path)
+        else:
+            model = AutoModelForSequenceClassification.from_pretrained(
+                self.model_name,
+                num_labels=num_labels,
+                id2label=id2label,
+                label2id=label2id,
+            )
         # peft_config = LoraConfig(
         #     task_type=TaskType.SEQ_CLS,
         #     inference_mode=False,
