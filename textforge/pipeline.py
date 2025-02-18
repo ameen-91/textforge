@@ -1,7 +1,9 @@
 import os
+import time
 from textforge.base import PipelineStep
 from textforge.synthetic import SyntheticDataGeneration
 from textforge.train import TrainingStep
+from textforge.quantize import QuantizeStep
 
 
 class PipelineConfig:
@@ -36,34 +38,47 @@ class PipelineConfig:
 
 class Pipeline:
     def __init__(self, config: PipelineConfig):
-        self.steps = [
-            SyntheticDataGeneration(
-                api_key=config.api_key,
-                labels=config.labels,
-                query=config.query,
-                model=config.data_gen_model,
-                base_url=config.base_url,
-            ),
-            TrainingStep(
-                model_name=config.model_name,
-                max_length=config.max_length,
-                epochs=config.epochs,
-                batch_size=config.batch_size,
-                save_steps=config.save_steps,
-                eval_steps=config.eval_steps,
-                model_path=config.model_path,
-            ),
-        ]
-        for step in self.steps:
-            if hasattr(step, "print_config_options"):
-                step.print_config_options()
+        self.step1 = SyntheticDataGeneration(
+            api_key=config.api_key,
+            labels=config.labels,
+            query=config.query,
+            model=config.data_gen_model,
+            base_url=config.base_url,
+        )
+        self.step2 = TrainingStep(
+            model_name=config.model_name,
+            max_length=config.max_length,
+            epochs=config.epochs,
+            batch_size=config.batch_size,
+            save_steps=config.save_steps,
+            eval_steps=config.eval_steps,
+            model_path=config.model_path,
+        )
+        self.step3 = QuantizeStep()
 
-    def run(self, data, save=False, only_train=False):
+        if hasattr(self.step1, "print_config_options"):
+            self.step1.print_config_options()
+        if hasattr(self.step2, "print_config_options"):
+            self.step2.print_config_options()
+        if hasattr(self.step3, "print_config_options"):
+            self.step3.print_config_options()
+
+    def run(self, data, save=False, skip_data_generation=False):
+        run_id = time.strftime("%Y%m%d-%H%M%S")
+        output_path = f"outputs/{run_id}/"
+        os.makedirs(output_path, exist_ok=True)
+
         data = data.copy()
-        if only_train:
-            self.steps = self.steps[1:]
-        for step in self.steps:
-            data = step.run(data)
+
+        if not skip_data_generation:
+            data = self.step1.run(data)
             if save:
-                step.save(data)
-        return data
+                self.step1.save(data, output_path)
+
+        data = self.step2.run(data)
+        if save:
+            self.step2.save(data, output_path)
+
+        data = self.step3.run(output_path)
+
+        return output_path

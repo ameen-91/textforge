@@ -1,3 +1,4 @@
+import os
 from textforge.base import PipelineStep
 from transformers import (
     AutoTokenizer,
@@ -152,5 +153,7 @@ class TrainingStep(PipelineStep):
         trainer.train()
         return model
 
-    def save(self, model):
-        model.save_pretrained("./model")
+    def save(self, model, output_path):
+        model.save_pretrained(os.path.join(output_path, "model"))
+        tokenizer = AutoTokenizer.from_pretrained(self.model_name)
+        tokenizer.save_pretrained(os.path.join(output_path, "model"))

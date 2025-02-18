@@ -1,3 +1,4 @@
+import os
 import asyncio
 import time
 import pandas as pd
@@ -156,5 +157,5 @@ class SyntheticDataGeneration(PipelineStep):
         except NameError:
             return asyncio.run(self.run_async(data))
 
-    def save(self, data: pd.DataFrame):
-        data.to_csv("labelled_data.csv", index=False)
+    def save(self, data: pd.DataFrame, output_path: str):
+        data.to_csv(os.path.join(output_path, "labelled_data.csv"), index=False)
