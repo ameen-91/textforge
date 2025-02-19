@@ -175,3 +175,5 @@ cython_debug/
 dist
 private_notebooks
 data
+datasets
+tests
