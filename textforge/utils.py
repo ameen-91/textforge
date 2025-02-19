@@ -2,6 +2,15 @@ import typer
 import os
 import pkg_resources
 import psutil
+import re
+
+
+def extract_label_value(text, key="label"):
+    pattern = rf"'{key}'\s*:\s*'([^']+)'"
+    match = re.search(pattern, text)
+    if match:
+        return match.group(1)
+    return None
 
 
 def print_success(message: str):
