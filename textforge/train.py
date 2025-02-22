@@ -1,3 +1,4 @@
+from copy import deepcopy
 import os
 from textforge.base import PipelineStep
 from transformers import (
@@ -9,11 +10,26 @@ from transformers import (
 )
 import numpy as np
 from datasets import load_dataset
-from transformers import Trainer, TrainingArguments
+from transformers import Trainer, TrainingArguments, TrainerCallback
 import evaluate
 import re
 from datasets import Dataset
 import torch
+
+
+class CustomCallback(TrainerCallback):
+
+    def __init__(self, trainer) -> None:
+        super().__init__()
+        self._trainer = trainer
+
+    def on_epoch_end(self, args, state, control, **kwargs):
+        if control.should_evaluate:
+            control_copy = deepcopy(control)
+            self._trainer.evaluate(
+                eval_dataset=self._trainer.train_dataset, metric_key_prefix="train"
+            )
+            return control_copy
 
 
 class TrainingStep(PipelineStep):
@@ -79,14 +95,14 @@ class TrainingStep(PipelineStep):
         def load_data(data):
             # Load the data from the input path
             # data = pd.read_csv(input_path)
-            # data = data.astype({"label": int})
+            data = data.astype({"label": int})
             data = Dataset.from_pandas(data)
             data = data.map(clean)
             data = data.class_encode_column("label")
             return data
 
+        data["label"] = data["label"].map(lambda x: label2id[x])
         data = load_data(data)
-
         tokenizer = AutoTokenizer.from_pretrained(self.model_name, use_fast=True)
 
         def tokenize(examples):
@@ -150,6 +166,7 @@ class TrainingStep(PipelineStep):
             eval_dataset=tokenized_data["test"],
             data_collator=data_collator,
         )
+        trainer.add_callback(CustomCallback(trainer))
         trainer.train()
         return model
 

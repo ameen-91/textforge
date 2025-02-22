@@ -21,6 +21,7 @@ class PipelineConfig:
         save_steps=100,
         eval_steps=100,
         base_url=None,
+        sync_client=True,
     ):
         self.api_key = api_key
         self.labels = labels
@@ -34,6 +35,7 @@ class PipelineConfig:
         self.eval_steps = eval_steps
         self.model_path = model_path
         self.base_url = base_url
+        self.sync_client = sync_client
 
 
 class Pipeline:
@@ -44,6 +46,7 @@ class Pipeline:
             query=config.query,
             model=config.data_gen_model,
             base_url=config.base_url,
+            sync_client=config.sync_client,
         )
         self.step2 = TrainingStep(
             model_name=config.model_name,
