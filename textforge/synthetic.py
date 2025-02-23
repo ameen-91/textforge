@@ -8,6 +8,7 @@ from IPython import get_ipython
 from textforge.base import PipelineStep
 from textforge.utils import extract_label_value
 from openai import AsyncClient, Client as SyncClient  # Using SyncClient for sync calls
+from rich.progress import Progress, TextColumn, BarColumn, TimeRemainingColumn
 
 
 class SyntheticDataGeneration(PipelineStep):
@@ -148,12 +149,28 @@ class SyntheticDataGeneration(PipelineStep):
             return response
 
         texts = labelled_data[labelled_data.columns[0]].tolist()
-        tasks = [asyncio.create_task(classify_text(text)) for text in texts]
-        results = []
-        for task in tqdm(
-            asyncio.as_completed(tasks), total=len(tasks), desc="Classifying text"
-        ):
-            results.append(await task)
+
+        results = [None] * len(texts)
+
+        async def progress_wrapper(idx, text, task_id, progress):
+            result = await classify_text(text)
+            results[idx] = result
+            progress.update(task_id, advance=1)
+
+        progress = Progress(
+            TextColumn("[progress.description]{task.description}"),
+            BarColumn(),
+            TextColumn("{task.completed}/{task.total}"),
+            TimeRemainingColumn(),
+        )
+        with progress:
+            task_id = progress.add_task("Classifying text", total=len(texts))
+            await asyncio.gather(
+                *(
+                    progress_wrapper(i, text, task_id, progress)
+                    for i, text in enumerate(texts)
+                )
+            )
         labelled_data["label"] = results
         labelled_data.rename(columns={labelled_data.columns[0]: "text"}, inplace=True)
         self.print_stats(labelled_data)
@@ -232,9 +249,20 @@ class SyntheticDataGeneration(PipelineStep):
 
         texts = labelled_data[labelled_data.columns[0]].tolist()
         results = []
-        for text in tqdm(texts, desc="Classifying text"):
-            result = classify_text_sync(text)
-            results.append(result)
+
+        progress = Progress(
+            TextColumn("[progress.description]{task.description}"),
+            BarColumn(),
+            TextColumn("{task.completed}/{task.total}"),
+            TimeRemainingColumn(),
+        )
+
+        with progress:
+            task_id = progress.add_task("Classifying text", total=len(texts))
+            for i, text in enumerate(texts):
+                result = classify_text_sync(text)
+                results.append(result)
+                progress.update(task_id, advance=1)
         labelled_data["label"] = results
         labelled_data.rename(columns={labelled_data.columns[0]: "text"}, inplace=True)
         self.print_stats(labelled_data)
