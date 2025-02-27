@@ -3,6 +3,8 @@ import os
 import pkg_resources
 import psutil
 import re
+import subprocess
+import time
 
 
 def extract_label_value(text, key="label"):
@@ -49,3 +51,13 @@ def get_models_dir():
 def get_memory_usage():
     process = psutil.Process(os.getpid())
     return process.memory_info().rss
+
+
+def install_ollama(model="llama3.1:8b-instruct-q4_0"):
+    subprocess.run("apt-get update && apt-get upgrade -y", shell=True)
+    subprocess.run(["apt-get install lshw"], shell=True)
+    subprocess.run(["curl https://ollama.ai/install.sh | sh"], shell=True)
+    serve_process = subprocess.Popen(["ollama serve"], shell=True)
+    time.sleep(5)
+    subprocess.run([f"ollama pull {model}"], shell=True)
+    print_success("OLLAMA installed successfully")

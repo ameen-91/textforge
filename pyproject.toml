@@ -1,7 +1,9 @@
 [tool.poetry]
 name = "textforge"
-version = "0.0.6"
-description = "test"
+version = "0.0.8"
+description = "Automated Synthetic Data Generation, Distillation, Quantization and Deployment Pipeline."
+license = "MIT"
+readme = "README.md"
 authors = ["ameen-91 <mohammedameen9011@gmail.com>"]
 
 [tool.poetry.dependencies]

@@ -12,9 +12,10 @@ class PipelineConfig:
 
     def __init__(
         self,
-        api_key,
         labels,
         query,
+        api_key=None,
+        use_local=False,
         data_gen_model="gpt-4o-mini",
         model_name="distilbert/distilbert-base-uncased",
         model_path=None,
@@ -31,6 +32,7 @@ class PipelineConfig:
             api_key (str): API key for data generation.
             labels (list): List of labels for classification.
             query (str): Query for data generation.
+            use_local (bool): Whether to use local data generation.
             data_gen_model (str): Model name for synthetic data generation.
             model_name (str): Model name for training.
             model_path (str, optional): Path to a pre-trained model.
@@ -42,6 +44,17 @@ class PipelineConfig:
             base_url (str, optional): Base URL for API requests.
             sync_client (bool): Whether to use a synchronous client.
         """
+        if use_local is False and api_key is None:
+            raise ValueError("API key is required for remote data generation.")
+        if use_local and data_gen_model == "gpt-4o-mini":
+            raise ValueError(
+                "Local data generation is not supported for GPT-4o-mini. Please use a different model."
+            )
+
+        if use_local:
+            api_key = "ollama"
+            base_url = "http://localhost:11434/v1"
+
         self.api_key = api_key
         self.labels = labels
         self.query = query
