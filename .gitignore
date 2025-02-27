@@ -176,4 +176,5 @@ dist
 private_notebooks
 data
 datasets
-tests
+tests/dataset_test
+tests/quantization_test
