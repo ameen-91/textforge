@@ -75,6 +75,7 @@ class QuantizeStep(PipelineStep):
         self.convert_to_onnx(output_path=output_path)
         self.convert_to_onnx_q8(output_path=output_path)
         print_success_bold("Quantization complete")
+        return output_path
 
     def save(self, model):
         pass

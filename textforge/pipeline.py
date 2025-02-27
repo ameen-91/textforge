@@ -4,6 +4,7 @@ from textforge.base import PipelineStep
 from textforge.synthetic import SyntheticDataGeneration
 from textforge.train import TrainingStep
 from textforge.quantize import QuantizeStep
+from textforge.deployment import DeploymentStep
 
 
 class PipelineConfig:
@@ -21,7 +22,7 @@ class PipelineConfig:
         save_steps=100,
         eval_steps=100,
         base_url=None,
-        sync_client=True,
+        sync_client=False,
     ):
         self.api_key = api_key
         self.labels = labels
@@ -59,6 +60,8 @@ class Pipeline:
         )
         self.step3 = QuantizeStep()
 
+        self.step4 = DeploymentStep()
+
         if hasattr(self.step1, "print_config_options"):
             self.step1.print_config_options()
         if hasattr(self.step2, "print_config_options"):
@@ -66,7 +69,7 @@ class Pipeline:
         if hasattr(self.step3, "print_config_options"):
             self.step3.print_config_options()
 
-    def run(self, data, save=False, skip_data_generation=False):
+    def run(self, data, serve=False, save=False, skip_data_generation=False):
         run_id = time.strftime("%Y%m%d-%H%M%S")
         output_path = f"outputs/{run_id}/"
         os.makedirs(output_path, exist_ok=True)
@@ -83,5 +86,7 @@ class Pipeline:
             self.step2.save(data, output_path)
 
         data = self.step3.run(output_path)
+        if serve:
+            self.step4.run(data)
 
         return output_path
