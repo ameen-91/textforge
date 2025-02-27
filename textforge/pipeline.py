@@ -8,6 +8,8 @@ from textforge.deployment import DeploymentStep
 
 
 class PipelineConfig:
+    """Configuration class for the pipeline."""
+
     def __init__(
         self,
         api_key,
@@ -24,6 +26,22 @@ class PipelineConfig:
         base_url=None,
         sync_client=False,
     ):
+        """
+        Args:
+            api_key (str): API key for data generation.
+            labels (list): List of labels for classification.
+            query (str): Query for data generation.
+            data_gen_model (str): Model name for synthetic data generation.
+            model_name (str): Model name for training.
+            model_path (str, optional): Path to a pre-trained model.
+            max_length (int): Maximum sequence length.
+            epochs (int): Number of training epochs.
+            batch_size (int): Batch size for training and evaluation.
+            save_steps (int): Number of steps between model saves.
+            eval_steps (int): Number of steps between evaluations.
+            base_url (str, optional): Base URL for API requests.
+            sync_client (bool): Whether to use a synchronous client.
+        """
         self.api_key = api_key
         self.labels = labels
         self.query = query
@@ -40,7 +58,13 @@ class PipelineConfig:
 
 
 class Pipeline:
+    """Pipeline for synthetic data generation, training, quantization, and deployment."""
+
     def __init__(self, config: PipelineConfig):
+        """
+        Args:
+            config (PipelineConfig): Configuration for the pipeline.
+        """
         self.step1 = SyntheticDataGeneration(
             api_key=config.api_key,
             labels=config.labels,
@@ -70,6 +94,18 @@ class Pipeline:
             self.step3.print_config_options()
 
     def run(self, data, serve=False, save=False, skip_data_generation=False):
+        """
+        Runs the pipeline.
+
+        Args:
+            data (pandas.DataFrame): The input data.
+            serve (bool): Whether to serve the model after training.
+            save (bool): Whether to save the intermediate and final outputs.
+            skip_data_generation (bool): Whether to skip the data generation step.
+
+        Returns:
+            str: The output path where the results are saved.
+        """
         run_id = time.strftime("%Y%m%d-%H%M%S")
         output_path = f"outputs/{run_id}/"
         os.makedirs(output_path, exist_ok=True)

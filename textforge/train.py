@@ -18,12 +18,29 @@ import torch
 
 
 class CustomCallback(TrainerCallback):
+    """Custom callback to evaluate the model on the training dataset at the end of each epoch."""
 
     def __init__(self, trainer) -> None:
+        """
+        Args:
+            trainer (Trainer): The Trainer instance.
+        """
         super().__init__()
         self._trainer = trainer
 
     def on_epoch_end(self, args, state, control, **kwargs):
+        """
+        Called at the end of each epoch.
+
+        Args:
+            args (TrainingArguments): The training arguments.
+            state (TrainerState): The state of the trainer.
+            control (TrainerControl): The control object.
+            **kwargs: Additional keyword arguments.
+
+        Returns:
+            TrainerControl: The control object.
+        """
         if control.should_evaluate:
             control_copy = deepcopy(control)
             self._trainer.evaluate(
@@ -33,6 +50,7 @@ class CustomCallback(TrainerCallback):
 
 
 class TrainingStep(PipelineStep):
+    """Pipeline step for training a sequence classification model."""
 
     def __init__(
         self,
@@ -46,6 +64,18 @@ class TrainingStep(PipelineStep):
         device="cuda" if torch.cuda.is_available() else "cpu",
         model_path=None,
     ):
+        """
+        Args:
+            model_name (str): The name of the pre-trained model.
+            batch_size (int): The batch size for training and evaluation.
+            epochs (int): The number of training epochs.
+            lr (float): The learning rate.
+            max_length (int): The maximum sequence length.
+            save_steps (int): The number of steps between model saves.
+            eval_steps (int): The number of steps between evaluations.
+            device (str): The device to use for training (e.g., 'cuda' or 'cpu').
+            model_path (str, optional): The path to a pre-trained model.
+        """
         self.model_name = model_name
         self.batch_size = batch_size
         self.epochs = epochs
@@ -57,6 +87,7 @@ class TrainingStep(PipelineStep):
         self.model_path = model_path
 
     def print_config_options(self):
+        """Prints the configuration options for the training step."""
         options = {
             "model": self.model_name,
             "batch_size": self.batch_size,
@@ -72,7 +103,15 @@ class TrainingStep(PipelineStep):
             print(f"  {key}: {value}")
 
     def run(self, data):
+        """
+        Runs the training step.
 
+        Args:
+            data (pandas.DataFrame): The input data containing 'text' and 'label' columns.
+
+        Returns:
+            AutoModelForSequenceClassification: The trained model.
+        """
         labels = data["label"].unique()
         num_labels = len(labels)
         label2id = {label: i for i, label in enumerate(labels)}
@@ -171,6 +210,13 @@ class TrainingStep(PipelineStep):
         return model
 
     def save(self, model, output_path):
+        """
+        Saves the trained model and tokenizer.
+
+        Args:
+            model (AutoModelForSequenceClassification): The trained model.
+            output_path (str): The path to save the model and tokenizer.
+        """
         model.save_pretrained(os.path.join(output_path, "model"))
         tokenizer = AutoTokenizer.from_pretrained(self.model_name)
         tokenizer.save_pretrained(os.path.join(output_path, "model"))

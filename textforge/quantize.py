@@ -22,10 +22,18 @@ logging.getLogger("root").setLevel(
 
 
 class QuantizeStep(PipelineStep):
+    """Pipeline step for quantizing a model using ONNX Runtime."""
+
     def __init__(self):
+        """Initialize QuantizeStep."""
         pass
 
     def convert_to_onnx(self, output_path):
+        """Convert the model to ONNX format.
+
+        Args:
+            output_path (str): Directory containing the model to be converted.
+        """
         onnx_path = os.path.join(output_path, "model", "model.onnx")
 
         model = AutoModelForSequenceClassification.from_pretrained(
@@ -58,7 +66,11 @@ class QuantizeStep(PipelineStep):
             )
 
     def convert_to_onnx_q8(self, output_path):
+        """Quantize the ONNX model to 8-bit precision.
 
+        Args:
+            output_path (str): Directory containing the ONNX model.
+        """
         onnx_model_path = os.path.join(output_path, "model/model.onnx")
         quantized_model_path = os.path.join(output_path, "model/model_quantized.onnx")
 
@@ -72,10 +84,23 @@ class QuantizeStep(PipelineStep):
             )
 
     def run(self, output_path):
+        """Run the quantization pipeline.
+
+        Args:
+            output_path (str): Directory where the model files are located.
+
+        Returns:
+            str: The output path after quantization is complete.
+        """
         self.convert_to_onnx(output_path=output_path)
         self.convert_to_onnx_q8(output_path=output_path)
         print_success_bold("Quantization complete")
         return output_path
 
     def save(self, model):
+        """Save the quantized model.
+
+        Args:
+            model: The quantized model to be saved.
+        """
         pass

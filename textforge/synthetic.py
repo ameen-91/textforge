@@ -22,6 +22,17 @@ class SyntheticDataGeneration(PipelineStep):
         base_url=None,
         sync_client: bool = False,  # new flag to choose client type
     ):
+        """Initialize SyntheticDataGeneration.
+
+        Args:
+            api_key (str): API key for authentication.
+            labels (list[str]): List of labels for classification.
+            query (str, optional): Additional query context. Defaults to "".
+            model (str, optional): Model name to use. Defaults to "gpt-4o-mini".
+            rate_limit_interval (float, optional): Interval between API calls. Defaults to 0.2.
+            base_url (optional): Base URL for API endpoint.
+            sync_client (bool, optional): Flag to choose synchronous client. Defaults to False.
+        """
         self.base_url = base_url
         self.sync_client = sync_client
         if self.sync_client:
@@ -45,6 +56,7 @@ class SyntheticDataGeneration(PipelineStep):
         self._last_sync_request_time = time.time()
 
     async def _throttle(self):
+        """Asynchronously throttle API calls based on rate_limit_interval."""
         async with self._rate_lock:
             current_time = asyncio.get_event_loop().time()
             delay = self.rate_limit_interval - (current_time - self._last_request_time)
@@ -53,6 +65,7 @@ class SyntheticDataGeneration(PipelineStep):
             self._last_request_time = asyncio.get_event_loop().time()
 
     def _throttle_sync(self):
+        """Synchronously throttle API calls based on rate_limit_interval."""
         current_time = time.time()
         delay = self.rate_limit_interval - (current_time - self._last_sync_request_time)
         if delay > 0:
@@ -65,6 +78,16 @@ class SyntheticDataGeneration(PipelineStep):
         system_prompt: str = "You are a helpful AI assistant. Please provide a response to the following user query:",
         max_tokens: int = None,
     ) -> pd.DataFrame:
+        """Generate text for each row in the provided DataFrame asynchronously.
+
+        Args:
+            data (pd.DataFrame): Input data with text input in the first column.
+            system_prompt (str, optional): System prompt for the API. Defaults to a helpful assistant prompt.
+            max_tokens (int, optional): Maximum tokens to generate. Defaults to None.
+
+        Returns:
+            pd.DataFrame: DataFrame with an added 'output' column containing generated responses.
+        """
         labelled_data = data.copy()
 
         async def generate_response(text):
@@ -93,6 +116,15 @@ class SyntheticDataGeneration(PipelineStep):
         return labelled_data
 
     def create_system_prompt(self, labels: list[str], query: str = "") -> str:
+        """Create a system prompt for text classification.
+
+        Args:
+            labels (list[str]): List of classification labels.
+            query (str, optional): Additional query to refine prompt. Defaults to "".
+
+        Returns:
+            str: Constructed system prompt.
+        """
         labels_str = ", ".join(labels)
         if query:
             return (
@@ -111,6 +143,16 @@ class SyntheticDataGeneration(PipelineStep):
         max_tokens: int = None,
         max_tries: int = 5,
     ) -> pd.DataFrame:
+        """Run the asynchronous text classification pipeline.
+
+        Args:
+            data (pd.DataFrame): Input data with text input.
+            max_tokens (int, optional): Maximum tokens for generation. Defaults to None.
+            max_tries (int, optional): Maximum reattempts for valid classification. Defaults to 5.
+
+        Returns:
+            pd.DataFrame: DataFrame with classification results added.
+        """
         labelled_data = data.copy()
         system_prompt = self.create_system_prompt(self.labels, self.query)
 
@@ -142,7 +184,6 @@ class SyntheticDataGeneration(PipelineStep):
                         },
                         {"role": "user", "content": text},
                     ],
-                    **options,
                 )
                 response = extract_label_value(response_obj.choices[0].message.content)
                 tries -= 1
@@ -179,9 +220,15 @@ class SyntheticDataGeneration(PipelineStep):
     def run(
         self, data: pd.DataFrame, max_tokens: int = None, max_tries: int = 5
     ) -> pd.DataFrame:
-        """
-        Executes the pipeline. If the instance was initialized with sync_client=True,
-        the synchronous pipeline (run_sync) is executed. Otherwise the asynchronous pipeline (run_async) is used.
+        """Execute the pipeline synchronously or asynchronously based on client type.
+
+        Args:
+            data (pd.DataFrame): Input data with text.
+            max_tokens (int, optional): Maximum tokens per API call. Defaults to None.
+            max_tries (int, optional): Maximum retries for valid classification. Defaults to 5.
+
+        Returns:
+            pd.DataFrame: DataFrame with processed results.
         """
         if self.sync_client:
             return self.run_sync(data, max_tokens=max_tokens, max_tries=max_tries)
@@ -206,9 +253,15 @@ class SyntheticDataGeneration(PipelineStep):
         max_tokens: int = None,
         max_tries: int = 10,
     ) -> pd.DataFrame:
-        """
-        Synchronous pipeline for text classification.
-        Processes the data synchronously without using asyncio.
+        """Run the synchronous text classification pipeline.
+
+        Args:
+            data (pd.DataFrame): Input data with text.
+            max_tokens (int, optional): Maximum tokens for generation. Defaults to None.
+            max_tries (int, optional): Maximum reattempts for valid classification. Defaults to 10.
+
+        Returns:
+            pd.DataFrame: DataFrame with classification results added.
         """
         labelled_data = data.copy()
         system_prompt = self.create_system_prompt(self.labels, self.query)
@@ -269,9 +322,20 @@ class SyntheticDataGeneration(PipelineStep):
         return labelled_data
 
     def save(self, data: pd.DataFrame, output_path: str):
+        """Save the labelled data to a CSV file.
+
+        Args:
+            data (pd.DataFrame): DataFrame containing processed data.
+            output_path (str): Directory path where the file will be saved.
+        """
         data.to_csv(os.path.join(output_path, "labelled_data.csv"), index=False)
 
     def print_stats(self, data: pd.DataFrame):
+        """Print statistics about the labelled data.
+
+        Args:
+            data (pd.DataFrame): DataFrame containing the results.
+        """
         print(f"Total number of samples: {len(data)}")
         print(f"Number of unique labels: {data['label'].nunique()}")
         print(f"Labels: {data['label'].unique()}")

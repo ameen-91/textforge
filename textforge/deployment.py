@@ -16,11 +16,19 @@ from textforge.base import PipelineStep
 
 
 class DeploymentStep(PipelineStep):
+    """Pipeline step for deploying a model using FastAPI and ONNX Runtime."""
 
     def __init__(self):
+        """Initialize DeploymentStep."""
         super().__init__()
 
     def run(self, model_path, quantize: bool = False):
+        """Run the deployment process.
+
+        Args:
+            model_path (str): Path to the model directory.
+            quantize (bool, optional): Flag to indicate whether to quantize the model. Defaults to False.
+        """
         quantize = "True" if quantize else "False"
         subprocess.run(
             [
@@ -32,4 +40,9 @@ class DeploymentStep(PipelineStep):
         )
 
     def save(self):
+        """Save deployment configuration or artifacts.
+
+        Note:
+            This method is currently a placeholder.
+        """
         pass
