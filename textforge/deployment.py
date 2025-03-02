@@ -4,7 +4,7 @@ import subprocess
 from fastapi import FastAPI
 from pydantic import BaseModel
 from transformers import AutoTokenizer
-from utils import (
+from textforge.utils import (
     print_success_bold,
     get_memory_usage,
     print_neutral,
