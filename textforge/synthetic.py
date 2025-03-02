@@ -234,7 +234,7 @@ class SyntheticDataGeneration(PipelineStep):
             return self.run_sync(data, max_tokens=max_tokens, max_tries=max_tries)
         try:
             shell = get_ipython().__class__.__name__
-            if shell == "ZMQInteractiveShell":
+            if shell == "ZMQInteractiveShell" or "Shell":
                 import nest_asyncio
 
                 nest_asyncio.apply()
