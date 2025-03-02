@@ -3,7 +3,7 @@
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/textforge)
 ![PyPI - Version](https://img.shields.io/pypi/v/textforge)
 ![PyPI - Downloads](https://img.shields.io/pypi/dw/textforge)
-[![CI](https://github.com/norsulabs/textforge/actions/workflows/ci.yaml/badge.svg)](https://github.com/norsulabs/textforge/actions/workflows/ci.yaml)
+[![CI](https://github.com/ameen-91/textforge/actions/workflows/ci.yaml/badge.svg)](https://github.com/norsulabs/textforge/actions/workflows/ci.yaml)
 ![Coverage](static/coverage.svg)
 
 ## Overview
