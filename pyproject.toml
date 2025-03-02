@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "textforge"
-version = "0.0.8"
+version = "0.0.9"
 description = "Automated Synthetic Data Generation, Distillation, Quantization and Deployment Pipeline."
 license = "MIT"
 readme = "README.md"
