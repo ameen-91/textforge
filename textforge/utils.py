@@ -81,7 +81,7 @@ def install_ollama(model="llama3.1:8b-instruct-q4_0"):
         TimeElapsedColumn(),
     ) as progress:
         overall_task = progress.add_task(
-            "[cyan]Installation progress...", total=len(steps)
+            "[bright_cyan]Installation progress...", total=len(steps)
         )
 
         for i, (description, command) in enumerate(steps):
@@ -111,12 +111,10 @@ def install_ollama(model="llama3.1:8b-instruct-q4_0"):
             except subprocess.CalledProcessError as e:
                 progress.stop()
                 print_error(f"Error during {description}: {e}")
-                return False
 
             progress.remove_task(task)
 
     print_success_bold("OLLAMA installed successfully!")
-    return True
 
 
 def start_ollama():
@@ -132,5 +130,3 @@ def start_ollama():
         print_success_bold("OLLAMA server started successfully!")
     except subprocess.CalledProcessError as e:
         print_error(f"Error starting OLLAMA server: {e}")
-        return False
-    return True
