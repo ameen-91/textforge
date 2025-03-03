@@ -194,7 +194,7 @@ class TrainingStep(PipelineStep):
             save_steps=self.save_steps,
             eval_steps=self.eval_steps,
             save_total_limit=2,
-            # report_to="wandb",
+            report_to="none",
             load_best_model_at_end=True,
         )
         trainer = Trainer(

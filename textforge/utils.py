@@ -117,3 +117,20 @@ def install_ollama(model="llama3.1:8b-instruct-q4_0"):
 
     print_success_bold("OLLAMA installed successfully!")
     return True
+
+
+def start_ollama():
+    command = "ollama serve"
+    try:
+        serve_process = subprocess.Popen(
+            command,
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        time.sleep(3)
+        print_success_bold("OLLAMA server started successfully!")
+    except subprocess.CalledProcessError as e:
+        print_error(f"Error starting OLLAMA server: {e}")
+        return False
+    return True
