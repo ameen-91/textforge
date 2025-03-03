@@ -5,6 +5,7 @@ import psutil
 import re
 import subprocess
 import time
+from rich.progress import Progress, SpinnerColumn, TextColumn, TimeElapsedColumn
 
 
 def extract_label_value(text, key="label"):
@@ -54,10 +55,57 @@ def get_memory_usage():
 
 
 def install_ollama(model="llama3.1:8b-instruct-q4_0"):
-    subprocess.run("apt-get update && apt-get upgrade -y", shell=True)
-    subprocess.run(["apt-get install lshw"], shell=True)
-    subprocess.run(["curl https://ollama.ai/install.sh | sh"], shell=True)
-    serve_process = subprocess.Popen(["ollama serve"], shell=True)
-    time.sleep(5)
-    subprocess.run([f"ollama pull {model}"], shell=True)
-    print_success("OLLAMA installed successfully")
+    """Install Ollama and pull specified model.
+
+    Args:
+        model (str, optional): Name of Model. Defaults to "llama3.1:8b-instruct-q4_0".
+    """
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        TimeElapsedColumn(),
+    ) as progress:
+
+        task1 = progress.add_task("[yellow]Updating system packages...", total=None)
+        subprocess.run(
+            "apt-get update && apt-get upgrade -y",
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        progress.update(task1, completed=True)
+
+        task2 = progress.add_task("[yellow]Installing dependencies...", total=None)
+        subprocess.run(
+            ["apt-get install lshw"],
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        progress.update(task2, completed=True)
+
+        task3 = progress.add_task("[yellow]Installing Ollama...", total=None)
+        subprocess.run(
+            ["curl https://ollama.ai/install.sh | sh"],
+            shell=True,
+            stderr=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+        )
+        progress.update(task3, completed=True)
+
+        task4 = progress.add_task("[yellow]Starting Ollama server...", total=None)
+        serve_process = subprocess.Popen(
+            ["ollama serve"], shell=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE
+        )
+        time.sleep(3)
+        progress.update(task4, completed=True)
+
+        task5 = progress.add_task("[yellow]Pulling model...", total=None)
+        subprocess.run(
+            [f"ollama pull {model}"],
+            shell=True,
+            stderr=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+        )
+        progress.update(task5, completed=True)
+    print_success_bold("OLLAMA installed successfully!")
