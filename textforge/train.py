@@ -15,6 +15,9 @@ import evaluate
 import re
 from datasets import Dataset
 import torch
+from transformers.utils import logging
+from rich.console import Console
+from rich.table import Table
 
 
 class CustomCallback(TrainerCallback):
@@ -58,7 +61,7 @@ class TrainingStep(PipelineStep):
         batch_size=8,
         epochs=3,
         lr=5e-5,
-        max_length=512,
+        max_length=128,
         save_steps=500,
         eval_steps=500,
         device="cuda" if torch.cuda.is_available() else "cpu",
@@ -85,9 +88,14 @@ class TrainingStep(PipelineStep):
         self.device = device
         self.max_length = max_length
         self.model_path = model_path
+        self.console = Console()
 
     def print_config_options(self):
         """Prints the configuration options for the training step."""
+        table = Table(title="TrainingStep Configuration")
+        table.add_column("Parameter", style="cyan")
+        table.add_column("Value", style="magenta")
+
         options = {
             "model": self.model_name,
             "batch_size": self.batch_size,
@@ -98,9 +106,11 @@ class TrainingStep(PipelineStep):
             "eval_steps": self.eval_steps,
             "device": self.device,
         }
-        print("TrainingStep configuration options:")
+
         for key, value in options.items():
-            print(f"  {key}: {value}")
+            table.add_row(str(key), str(value))
+
+        self.console.print(table)
 
     def run(self, data):
         """

@@ -178,3 +178,4 @@ data
 datasets
 tests/dataset_test
 tests/quantization_test
+tests/training_test

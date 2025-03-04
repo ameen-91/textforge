@@ -5,6 +5,7 @@ import psutil
 import re
 import subprocess
 import time
+from rich.console import Console
 from rich.progress import (
     Progress,
     SpinnerColumn,
@@ -12,6 +13,8 @@ from rich.progress import (
     TimeElapsedColumn,
     BarColumn,
 )
+
+console = Console()
 
 
 def extract_label_value(text, key="label"):
@@ -23,19 +26,19 @@ def extract_label_value(text, key="label"):
 
 
 def print_success(message: str):
-    typer.echo(typer.style(message, fg=typer.colors.GREEN))
+    console.print(f"[green]{message}[/green]")
 
 
 def print_error(message: str):
-    typer.echo(typer.style(message, fg=typer.colors.RED))
+    console.print(f"[red]{message}[/red]")
 
 
 def print_success_bold(message: str):
-    typer.echo(typer.style(message, fg=typer.colors.GREEN, bold=True))
+    console.print(f"[green bold]{message}[/green bold]")
 
 
 def print_neutral(message: str):
-    typer.echo(typer.style(message, fg=typer.colors.BLUE))
+    console.print(f"[blue]{message}[/blue]")
 
 
 def sanitize_model_name(model: str):
@@ -110,11 +113,11 @@ def install_ollama(model="llama3.1:8b-instruct-q4_0"):
 
             except subprocess.CalledProcessError as e:
                 progress.stop()
-                print_error(f"Error during {description}: {e}")
+                console.print(f"[red]Error during {description}: {e}[/red]")
 
             progress.remove_task(task)
 
-    print_success_bold("OLLAMA installed successfully!")
+    console.print("[green bold]OLLAMA installed successfully![/green bold]")
 
 
 def start_ollama():
@@ -127,6 +130,6 @@ def start_ollama():
             stderr=subprocess.PIPE,
         )
         time.sleep(3)
-        print_success_bold("OLLAMA server started successfully!")
+        console.print("[green bold]OLLAMA server started successfully![/green bold]")
     except subprocess.CalledProcessError as e:
-        print_error(f"Error starting OLLAMA server: {e}")
+        console.print(f"[red]Error starting OLLAMA server: {e}[/red]")

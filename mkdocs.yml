@@ -2,6 +2,7 @@ site_name: textforge
 site_url: https://ameen-91.github.io/textforge/
 nav:
     - Home: index.md
+    - How to with a Local LLM: how_to_local.md
     - Pipeline: pipeline.md
     - Synthetic Data Generation: synthetic_data.md
     - Training: training.md

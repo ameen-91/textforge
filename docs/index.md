@@ -27,22 +27,22 @@ pip install textforge
 
 ```python
 import pandas as pd
-from textforge.pipeline import Pipeline
-from textforge.pipeline import PipelineConfig
+from textforge.pipeline import Pipeline, PipelineConfig
 
 pipeline_config = PipelineConfig(
-    api_key,
-    labels=["positive", "negative"],
-    model_name="distilbert-base-uncased",
-    max_length=512,
-    epochs=3
+    api_key=api_key,
+    labels=['business','education','entertainment','sports','technology'],
+    query="Classify based on headlines",
+    save_steps=200,
+    eval_steps=200,
+    epochs=10
 )
+
+df = pd.read_csv('data.csv')
 
 pipeline = Pipeline(pipeline_config)
 
-data = pd.read_csv("unlabelled_data.csv")
-
-pipeline.run(data=data, save=True, serve=True)
+pipeline.run(data=df, save=True, serve=True)
 ```
 
 ## License
