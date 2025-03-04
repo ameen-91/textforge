@@ -9,6 +9,8 @@ from textforge.base import PipelineStep
 from textforge.utils import extract_label_value
 from openai import AsyncClient, Client as SyncClient  # Using SyncClient for sync calls
 from rich.progress import Progress, TextColumn, BarColumn, TimeRemainingColumn
+from rich.table import Table
+from rich.console import Console
 
 
 class SyntheticDataGeneration(PipelineStep):
@@ -54,6 +56,7 @@ class SyntheticDataGeneration(PipelineStep):
         self._last_request_time = 0
         # For synchronous throttling we'll use time.time()
         self._last_sync_request_time = time.time()
+        self.console = Console()
 
     async def _throttle(self):
         """Asynchronously throttle API calls based on rate_limit_interval."""
@@ -331,15 +334,31 @@ class SyntheticDataGeneration(PipelineStep):
         data.to_csv(os.path.join(output_path, "labelled_data.csv"), index=False)
 
     def print_stats(self, data: pd.DataFrame):
-        """Print statistics about the labelled data.
+        """Print statistics about the labelled data using rich formatting.
 
         Args:
             data (pd.DataFrame): DataFrame containing the results.
         """
-        print(f"Total number of samples: {len(data)}")
-        print(f"Number of unique labels: {data['label'].nunique()}")
-        print(f"Labels: {data['label'].unique()}")
+        stats_table = Table(title="Dataset Statistics", show_header=True)
+        stats_table.add_column("Metric", style="cyan")
+        stats_table.add_column("Value", style="magenta")
+
+        # Basic statistics
+        stats_table.add_row("Total samples", str(len(data)))
+        stats_table.add_row("Unique labels", str(data["label"].nunique()))
+        stats_table.add_row("Labels", ", ".join(map(str, data["label"].unique())))
+
+        self.console.print(stats_table)
+
         if "label" in data.columns:
-            print(
-                f"Label distribution: {data['label'].value_counts() / len(data) * 100}"
-            )
+            # Create distribution table
+            dist_table = Table(title="Label Distribution", show_header=True)
+            dist_table.add_column("Label", style="cyan")
+            dist_table.add_column("Percentage", style="magenta")
+
+            distribution = data["label"].value_counts() / len(data) * 100
+            for label, percentage in distribution.items():
+                dist_table.add_row(str(label), f"{percentage:.2f}%")
+
+            self.console.print("\n")  # Add spacing between tables
+            self.console.print(dist_table)

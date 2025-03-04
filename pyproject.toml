@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "textforge"
-version = "0.1.1"
+version = "0.1.2"
 description = "Automated Synthetic Data Generation, Distillation, Quantization and Deployment Pipeline."
 license = "MIT"
 readme = "README.md"
@@ -9,7 +9,7 @@ authors = ["ameen-91 <mohammedameen9011@gmail.com>"]
 [tool.poetry.dependencies]
 python = "^3.11"
 openai = "^1.63.0"
-pandas = "^2.2.3"
+pandas = "2.2.2"
 tqdm = "^4.67.1"
 transformers = "^4.48.3"
 peft = "^0.14.0"
