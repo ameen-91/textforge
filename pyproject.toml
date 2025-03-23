@@ -6,6 +6,9 @@ license = "MIT"
 readme = "README.md"
 authors = ["ameen-91 <mohammedameen9011@gmail.com>"]
 
+[tool.poetry.scripts]
+textforge = "textforge.cli:main"
+
 [tool.poetry.dependencies]
 python = "^3.11"
 openai = "^1.63.0"
