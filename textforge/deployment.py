@@ -14,6 +14,17 @@ from textforge.utils import (
 import onnxruntime
 from textforge.base import PipelineStep
 
+def serve (model_path, quantize=False):
+    
+    quantize = "True" if quantize else "False"
+    subprocess.run(
+        [
+            "python",
+            os.path.join(get_package_dir(), "serve.py"),
+            os.path.join(model_path, "model"),
+            str(quantize).lower(),
+        ]
+    )
 
 class DeploymentStep(PipelineStep):
     """Pipeline step for deploying a model using FastAPI and ONNX Runtime."""
@@ -29,15 +40,7 @@ class DeploymentStep(PipelineStep):
             model_path (str): Path to the model directory.
             quantize (bool, optional): Flag to indicate whether to quantize the model. Defaults to False.
         """
-        quantize = "True" if quantize else "False"
-        subprocess.run(
-            [
-                "python",
-                os.path.join(get_package_dir(), "serve.py"),
-                os.path.join(model_path, "model"),
-                str(quantize).lower(),
-            ]
-        )
+        serve(model_path, quantize)
 
     def save(self):
         """Save deployment configuration or artifacts.
