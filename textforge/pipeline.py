@@ -6,6 +6,8 @@ from textforge.train import TrainingStep
 from textforge.quantize import QuantizeStep
 from textforge.deployment import DeploymentStep
 
+import pandas as pd
+
 
 class PipelineConfig:
     """Configuration class for the pipeline."""
@@ -139,3 +141,11 @@ class Pipeline:
             self.step4.run(data)
 
         return output_path
+
+    def calibrate(self, data: pd.DataFrame):
+        
+        data.reset_index(inplace=True)
+        f = """\n\nExamples:\n\n"""
+        for i in range(len(data)):
+            f += f"Example {i}:\nText: {data['text'][i]}\nLabel: {data['label'][i]}\n\n"
+        self.query = f

@@ -2,12 +2,12 @@ import os
 import asyncio
 import time
 import pandas as pd
-from tqdm import tqdm  # note: switched from tqdm.asyncio to synchronous tqdm
+from tqdm import tqdm  
 from IPython import get_ipython
 
 from textforge.base import PipelineStep
 from textforge.utils import extract_label_value
-from openai import AsyncClient, Client as SyncClient  # Using SyncClient for sync calls
+from openai import AsyncClient, Client as SyncClient
 from rich.progress import Progress, TextColumn, BarColumn, TimeRemainingColumn
 from rich.table import Table
 from rich.console import Console
@@ -22,7 +22,7 @@ class SyntheticDataGeneration(PipelineStep):
         model: str = "gpt-4o-mini",
         rate_limit_interval: float = 0.2,
         base_url=None,
-        sync_client: bool = False,  # new flag to choose client type
+        sync_client: bool = False,  
     ):
         """Initialize SyntheticDataGeneration.
 
