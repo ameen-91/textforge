@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+         <loc>https://ameen-91.github.io/textforge/</loc>
+         <lastmod>2025-03-29</lastmod>
+    </url>
+    <url>
+         <loc>https://ameen-91.github.io/textforge/deployment/</loc>
+         <lastmod>2025-03-29</lastmod>
+    </url>
+    <url>
+         <loc>https://ameen-91.github.io/textforge/how_to_local/</loc>
+         <lastmod>2025-03-29</lastmod>
+    </url>
+    <url>
+         <loc>https://ameen-91.github.io/textforge/pipeline/</loc>
+         <lastmod>2025-03-29</lastmod>
+    </url>
+    <url>
+         <loc>https://ameen-91.github.io/textforge/quantization/</loc>
+         <lastmod>2025-03-29</lastmod>
+    </url>
+    <url>
+         <loc>https://ameen-91.github.io/textforge/synthetic_data/</loc>
+         <lastmod>2025-03-29</lastmod>
+    </url>
+    <url>
+         <loc>https://ameen-91.github.io/textforge/training/</loc>
+         <lastmod>2025-03-29</lastmod>
+    </url>
+</urlset>
