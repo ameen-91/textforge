@@ -5,8 +5,6 @@ from rich.table import Table
 from textforge.manager import ModelManager
 
 app = typer.Typer(help="TextForge CLI - Text Classification Pipeline")
-model_app = typer.Typer(help="Model management commands")
-app.add_typer(model_app, name="models")
 
 console = Console()
 
@@ -32,7 +30,7 @@ def serve_model(model_id: str) -> None:
 
 
 
-@model_app.command("list")
+@app.command("list")
 def list_models(
     format: str = typer.Option("table", "--format", "-f", help="Output format (table/json)")
 ) -> None:
@@ -63,7 +61,7 @@ def list_models(
     
     console.print(table)
 
-@model_app.command()
+@app.command()
 def info(model_id: str) -> None:
     """Show detailed information about a model."""
     manager = ModelManager()
@@ -73,7 +71,7 @@ def info(model_id: str) -> None:
     except ValueError as e:
         console.print(f"[red]Error:[/] {e}")
 
-@model_app.command()
+@app.command()
 def delete(
     model_id: str,
     force: bool = typer.Option(False, '--force', '-f', help="Force delete without confirmation")
