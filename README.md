@@ -1,4 +1,4 @@
-# Infero
+# TextForge
 
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/textforge)
 ![PyPI - Version](https://img.shields.io/pypi/v/textforge)
